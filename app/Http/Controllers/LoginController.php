@@ -102,8 +102,7 @@ class LoginController extends Controller
         $locale = $locals[$role];
         App::setLocale($locale);
 
-        $custome_recaptcha = new CaptchaBuilder;
-        $custome_recaptcha->build();
+        $custome_recaptcha = build_captcha();
         Session::put('six_captcha', $custome_recaptcha->getPhrase());
 
         $email =  null;
@@ -271,8 +270,7 @@ class LoginController extends Controller
 
     public function reloadCaptcha()
     {
-        $custome_recaptcha = new CaptchaBuilder;
-        $custome_recaptcha->build();
+        $custome_recaptcha = build_captcha();
         Session::put('six_captcha', $custome_recaptcha->getPhrase());
 
         return response()->json([

@@ -322,8 +322,7 @@ class HomeController extends Controller
         $landing_integration_type = Helpers::get_business_data('landing_integration_type');
         $redirect_url = Helpers::get_business_data('landing_page_custom_url');
 
-        $custome_recaptcha = new CaptchaBuilder;
-        $custome_recaptcha->build();
+        $custome_recaptcha = build_captcha();
         Session::put('six_captcha', $custome_recaptcha->getPhrase());
 
         if(isset($config) && $config){
@@ -551,8 +550,7 @@ class HomeController extends Controller
     }
         public function reloadCaptcha()
     {
-        $custome_recaptcha = new CaptchaBuilder;
-        $custome_recaptcha->build();
+        $custome_recaptcha = build_captcha();
         Session::put('six_captcha', $custome_recaptcha->getPhrase());
 
         return response()->json([

@@ -23,8 +23,7 @@ class DeliveryManController extends Controller
         $status = BusinessSetting::where('key', 'toggle_dm_registration')->first()?->value;
         if($status == 1)
         {
-        $custome_recaptcha = new CaptchaBuilder;
-        $custome_recaptcha->build();
+        $custome_recaptcha = build_captcha();
         Session::put('six_captcha', $custome_recaptcha->getPhrase());
 
             $page_data=   DataSetting::Where('type' , 'deliveryman')->where('key' , 'deliveryman_page_data')->first()?->value;

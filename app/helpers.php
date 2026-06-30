@@ -15,6 +15,31 @@ use App\CentralLogics\CustomerLogic;
 use Illuminate\Support\Facades\Mail;
 use App\Models\SubscriptionBillingAndRefundHistory;
 use Brian2694\Toastr\Facades\Toastr;
+use Gregwar\Captcha\CaptchaBuilder;
+
+
+if (! function_exists('build_captcha')) {
+    /**
+     * Build a captcha image using a font that is bundled with the application.
+     *
+     * The gregwar/captcha package picks a random font from its own vendor
+     * directory, which can be missing after deploy and triggers
+     * "imagettfbbox(): Could not find/open font". Shipping the fonts inside
+     * resources/fonts and passing one explicitly makes captcha generation
+     * independent of the vendor directory.
+     */
+    function build_captcha(int $width = 150, int $height = 40): CaptchaBuilder
+    {
+        $captcha = new CaptchaBuilder();
+
+        $fonts = glob(base_path('resources/fonts/captcha*.ttf')) ?: [];
+        $font = !empty($fonts) ? $fonts[array_rand($fonts)] : null;
+
+        $captcha->build($width, $height, $font);
+
+        return $captcha;
+    }
+}
 
 
 if (! function_exists('translate')) {
