@@ -30,12 +30,26 @@ if (! function_exists('build_captcha')) {
      */
     function build_captcha(int $width = 150, int $height = 40): CaptchaBuilder
     {
+        $dir = base_path('resources' . DIRECTORY_SEPARATOR . 'fonts');
+
+        $fonts = [];
+        if (is_dir($dir)) {
+            foreach (scandir($dir) as $file) {
+                if (preg_match('/^captcha\d+\.ttf$/i', $file)) {
+                    $fonts[] = $dir . DIRECTORY_SEPARATOR . $file;
+                }
+            }
+        }
+
+        if (empty($fonts)) {
+            throw new RuntimeException(
+                'Captcha fonts not found in [' . $dir . ']. '
+                . 'Make sure the resources/fonts/captcha*.ttf files from the repository exist on this server.'
+            );
+        }
+
         $captcha = new CaptchaBuilder();
-
-        $fonts = glob(base_path('resources/fonts/captcha*.ttf')) ?: [];
-        $font = !empty($fonts) ? $fonts[array_rand($fonts)] : null;
-
-        $captcha->build($width, $height, $font);
+        $captcha->build($width, $height, $fonts[array_rand($fonts)]);
 
         return $captcha;
     }
