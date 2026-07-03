@@ -49,9 +49,53 @@ if (! function_exists('build_captcha')) {
         }
 
         $captcha = new CaptchaBuilder();
-        $captcha->build($width, $height, $fonts[array_rand($fonts)]);
+        $captcha->build($width, $height, usable_captcha_font($fonts[array_rand($fonts)]));
 
         return $captcha;
+    }
+}
+
+if (! function_exists('usable_captcha_font')) {
+    /**
+     * Resolve a font path that GD can actually open.
+     *
+     * On Windows, GD/FreeType fails with "Could not find/open font" when the
+     * absolute path contains non-ASCII characters (accents, etc.), even
+     * though the file exists. Try the absolute path first, then a relative
+     * path from the current working directory, then a copy in the system
+     * temp directory.
+     */
+    function usable_captcha_font(string $font): string
+    {
+        static $resolved = [];
+
+        if (isset($resolved[$font])) {
+            return $resolved[$font];
+        }
+
+        $candidates = [$font];
+
+        $cwd = getcwd();
+        if ($cwd !== false && strpos($font, $cwd . DIRECTORY_SEPARATOR) === 0) {
+            $candidates[] = substr($font, strlen($cwd) + 1);
+        }
+
+        $tmp = rtrim(sys_get_temp_dir(), '\\/') . DIRECTORY_SEPARATOR . 'captcha_' . md5_file($font) . '.ttf';
+        if (is_file($tmp) || @copy($font, $tmp)) {
+            $candidates[] = $tmp;
+        }
+
+        foreach ($candidates as $candidate) {
+            if (@imagettfbbox(10, 0, $candidate, 'test') !== false) {
+                return $resolved[$font] = $candidate;
+            }
+        }
+
+        throw new RuntimeException(
+            'GD could not open the captcha font. Tried: [' . implode('], [', $candidates) . ']. '
+            . 'Check that the file is a valid TTF (~35-440 KB) and note that GD on Windows '
+            . 'cannot open paths containing accented/non-ASCII characters.'
+        );
     }
 }
 
