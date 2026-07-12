@@ -9134,4 +9134,5 @@ Mexican Food',
   'Order_Notification' => 'Order Notification',
   'cancellation_reason_required' => 'Cancellation reason required',
   'notification_Banner' => 'Notification Banner',
+  'Password does not match.' => 'Password does not match.',
 );
