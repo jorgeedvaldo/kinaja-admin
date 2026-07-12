@@ -36,7 +36,19 @@ use App\Http\Controllers\WalletPaymentController;
 */
 
 Route::post('/subscribeToTopic', [FirebaseController::class, 'subscribeToTopic']);
- Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// ─── Public pages (mirrored from kinaja-api) ──────────────────
+Route::get('/', function () {
+    return view('welcome', ['page' => 'home']);
+})->name('home');
+
+Route::get('/seja-parceiro', function () {
+    return view('welcome', ['page' => 'partner']);
+})->name('partner');
+
+Route::get('/carreiras', function () {
+    return view('welcome', ['page' => 'careers']);
+})->name('careers');
 
 
 Route::view('subscription/payment/view' , 'Subscription_payment_view')->name('subscription_payment_view');
