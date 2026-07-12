@@ -30,4 +30,10 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'kinaja_api' => [
+        // Base URL of the kinaja-api backend that receives the public
+        // registration forms (partner/driver). Empty means same origin.
+        'base_url' => env('KINAJA_API_BASE_URL', ''),
+    ],
+
 ];
