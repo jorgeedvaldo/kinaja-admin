@@ -537,7 +537,7 @@
 @endsection
 @push('script_2')
     <script
-        src="https://maps.googleapis.com/maps/api/js?key={{ \App\Models\BusinessSetting::where('key', 'map_api_key')->first()->value }}&libraries=places,marker&callback=initMap&v=3.61">
+        src="https://maps.googleapis.com/maps/api/js?key={{ \App\Models\BusinessSetting::where('key', 'map_api_key')->first()?->value }}&libraries=places,marker&callback=initMap&v=3.61">
     </script>
     <script>
         "use strict";
@@ -550,7 +550,7 @@
         });
         let map = null;
 
-        const mapId = "{{ \App\Models\BusinessSetting::where('key', 'map_api_key')->first()->value }}";
+        const mapId = "{{ \App\Models\BusinessSetting::where('key', 'map_api_key')->first()?->value }}";
         const { AdvancedMarkerElement } = google.maps.marker;
 
         function createMarkerIcon(src) {

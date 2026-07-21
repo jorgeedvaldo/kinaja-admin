@@ -2827,7 +2827,7 @@ $max_processing_time = $order->restaurant?explode('-', $order->restaurant['deliv
         let deliveryMan = <?php echo json_encode($deliveryMen); ?>;
         let map = null;
 
-        const mapId = "{{ \App\Models\BusinessSetting::where('key', 'map_api_key')->first()->value }}";
+        const mapId = "{{ \App\Models\BusinessSetting::where('key', 'map_api_key')->first()?->value }}";
         const { AdvancedMarkerElement } = google.maps.marker;
 
         function createMarkerIcon(src) {

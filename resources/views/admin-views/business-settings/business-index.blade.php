@@ -1458,7 +1458,7 @@
 
 @push('script_2')
     <script
-        src="https://maps.googleapis.com/maps/api/js?key={{ \App\Models\BusinessSetting::where('key', 'map_api_key')->first()->value }}&libraries=places,marker&v=3.61">
+        src="https://maps.googleapis.com/maps/api/js?key={{ \App\Models\BusinessSetting::where('key', 'map_api_key')->first()?->value }}&libraries=places,marker&v=3.61">
     </script>
     <script>
         "use strict";
@@ -1515,7 +1515,7 @@
 
         function initAutocomplete() {
 
-            const mapId = "{{ \App\Models\BusinessSetting::where('key', 'map_api_key')->first()->value }}";
+            const mapId = "{{ \App\Models\BusinessSetting::where('key', 'map_api_key')->first()?->value }}";
             var myLatLng = {
                 lat: {{ $default_location ? $default_location['lat'] : '-33.8688' }},
                 lng: {{ $default_location ? $default_location['lng'] : '151.2195' }}
