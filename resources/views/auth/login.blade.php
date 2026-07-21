@@ -18,7 +18,9 @@
     <link rel="shortcut icon" href="{{asset($icon ? 'storage/app/public/business/'.$icon : 'public/favicon.ico')}}">
 
     <!-- Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&amp;display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <!-- CSS Implementing Plugins -->
     <link rel="stylesheet" href="{{dynamicAsset('assets/admin')}}/css/vendor.min.css">
     <link rel="stylesheet" href="{{dynamicAsset('assets/admin')}}/vendor/icon-set/style.css">
@@ -27,9 +29,162 @@
     <link rel="stylesheet" href="{{dynamicAsset('assets/admin')}}/css/theme.minc619.css?v=1.0">
     <link rel="stylesheet" href="{{dynamicAsset('assets/admin')}}/css/style.css">
     <link rel="stylesheet" href="{{dynamicAsset('assets/admin')}}/css/toastr.css">
+
+    <!-- KinaJá brand skin — aligns this auth page with the public pages (home, seja-parceiro, carreiras) -->
+    <style>
+        :root {
+            --primary: #FF4D00;
+            --primary-dark: #D93A00;
+            --primary-light: #FF7A1A;
+            --accent: #FFD166;
+            --background: #FFF7F2;
+            --surface: #FFFFFF;
+            --text-secondary: #6B7280;
+            --border-medium: #E5E7EB;
+            --dark: #111827;
+
+            /* re-theme the admin template's own color variables */
+            --theameColor: #FF4D00;
+            --primary-clr: #FF4D00;
+            --bs-primary: #FF4D00;
+            --bs-primary-rgb: 255, 77, 0;
+        }
+
+        body,
+        .auth-content,
+        .auth-wrapper,
+        .form-control,
+        .btn {
+            font-family: "Instrument Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        .kj-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 76px;
+            padding: 0 28px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border-medium);
+            position: relative;
+            z-index: 5;
+        }
+
+        .kj-header .kj-brand img {
+            height: 40px;
+            width: auto;
+            display: block;
+        }
+
+        .kj-header .kj-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-weight: 700;
+            font-size: 0.92rem;
+        }
+
+        .kj-header .kj-back:hover {
+            color: var(--primary);
+        }
+
+        .auth-bg {
+            background:
+                radial-gradient(circle at 80% 18%, rgba(255, 77, 0, 0.1), transparent 26%),
+                linear-gradient(30deg, rgba(229, 231, 235, 0.5) 1px, transparent 1px),
+                linear-gradient(150deg, rgba(229, 231, 235, 0.42) 1px, transparent 1px),
+                var(--background) !important;
+            background-size: auto, 44px 44px, 44px 44px, auto !important;
+            background-attachment: scroll !important;
+            min-height: calc(100vh - 76px);
+        }
+
+        .auth-content {
+            background: linear-gradient(135deg, rgba(255, 77, 0, 0.92), rgba(217, 58, 0, 0.9)) !important;
+            top: calc(50% + 38px);
+        }
+
+        .auth-content .title {
+            font-weight: 800;
+            letter-spacing: -0.01em;
+        }
+
+        .auth-wrapper {
+            min-height: calc(100vh - 76px);
+            background: var(--surface);
+        }
+
+        .auth-wrapper .signin-txt {
+            color: var(--dark);
+            font-weight: 800;
+        }
+
+        .auth-wrapper .btn-primary,
+        .auto-fill-data-copy .btn-primary,
+        .btn--primary {
+            background: var(--primary) !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 18px 38px rgba(255, 77, 0, 0.25);
+            transition: transform 180ms ease, box-shadow 180ms ease;
+        }
+
+        .auth-wrapper .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 22px 46px rgba(255, 77, 0, 0.3);
+        }
+
+        .auth-wrapper .btn-primary:focus {
+            background: var(--primary-dark) !important;
+            border-color: var(--primary-dark) !important;
+        }
+
+        .auth-wrapper .sign-option-btn {
+            color: var(--primary) !important;
+            border-color: var(--primary) !important;
+        }
+
+        .text__primary,
+        .text-hover-primary:hover {
+            color: var(--primary) !important;
+        }
+
+        .form-control {
+            border-radius: 8px;
+            border-color: var(--border-medium);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 77, 0, 0.15);
+        }
+
+        .custom-control-input:checked~.custom-control-label::before {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        @media (max-width: 767px) {
+            .kj-header {
+                min-height: 64px;
+                padding: 0 18px;
+            }
+
+            .auth-bg,
+            .auth-wrapper {
+                min-height: calc(100vh - 64px);
+            }
+        }
+    </style>
 </head>
 
 <body>
+<header class="kj-header">
+    <a href="{{ url('/') }}" class="kj-brand" aria-label="KinaJá">
+        <img src="{{ asset('images/logo.png') }}" alt="KinaJá Logo">
+    </a>
+    <a href="{{ url('/') }}" class="kj-back">&larr; {{ translate('messages.home') }}</a>
+</header>
 <!-- ========== MAIN CONTENT ========== -->
 <main id="content" role="main" class="main auth-bg">
     <!-- Content -->
