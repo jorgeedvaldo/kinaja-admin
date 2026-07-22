@@ -541,7 +541,7 @@
     <script src="{{ dynamicAsset('assets/admin') }}/js/file-preview/document-upload.js"></script>
     <script src="{{ dynamicAsset('assets/admin') }}/js/view-pages/map-functionality.js"></script>
     <script
-        src="https://maps.googleapis.com/maps/api/js?key={{ \App\Models\BusinessSetting::where('key', 'map_api_key')->first()->value }}&loading=async&libraries=drawing,places,marker&v=3.61&language={{ str_replace('_', '-', app()->getLocale()) }}&callback=initMap">
+        src="https://maps.googleapis.com/maps/api/js?key={{ \App\Models\BusinessSetting::where('key', 'map_api_key')->first()?->value }}&loading=async&libraries=places,marker,geometry&v=3.61&language={{ str_replace('_', '-', app()->getLocale()) }}&callback=initMap">
     </script>
 
 <script src="{{ dynamicAsset('assets/admin') }}/js/tags-input.min.js"></script>
