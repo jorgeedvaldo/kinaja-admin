@@ -2827,21 +2827,10 @@ $max_processing_time = $order->restaurant?explode('-', $order->restaurant['deliv
         let deliveryMan = <?php echo json_encode($deliveryMen); ?>;
         let map = null;
 
-        const mapId = "{{ \App\Models\BusinessSetting::where('key', 'map_api_key')->first()->value }}";
-        const { AdvancedMarkerElement } = google.maps.marker;
-
-        function createMarkerIcon(src) {
-            const img = document.createElement('img');
-            img.src = src;
-            img.style.width = '100%';
-            img.style.height = '100%';
-            return img;
-        }
-
-        const customerIcon = createMarkerIcon("{{ dynamicAsset('assets/admin/img/customer_location.png') }}");
-        const restaurantIcon = createMarkerIcon("{{ dynamicAsset('assets/admin/img/restaurant_map_1.png') }}");
-        const deliveryBoy1Icon = createMarkerIcon("{{ dynamicAsset('assets/admin/img/delivery_boy_map_1.png') }}");
-        const deliveryBoy2Icon = createMarkerIcon("{{ dynamicAsset('assets/admin/img/delivery_boy_map_2.png') }}");
+        const customerIcon = "{{ dynamicAsset('assets/admin/img/customer_location.png') }}";
+        const restaurantIcon = "{{ dynamicAsset('assets/admin/img/restaurant_map_1.png') }}";
+        const deliveryBoy1Icon = "{{ dynamicAsset('assets/admin/img/delivery_boy_map_1.png') }}";
+        const deliveryBoy2Icon = "{{ dynamicAsset('assets/admin/img/delivery_boy_map_2.png') }}";
 
         let myLatlng = new google.maps.LatLng({{ isset($order->restaurant) ? $order->restaurant->latitude : 0 }},
             {{ isset($order->restaurant) ? $order->restaurant->longitude : 0 }});
@@ -2852,7 +2841,6 @@ $max_processing_time = $order->restaurant?explode('-', $order->restaurant['deliv
         locationbounds.extend(myLatlng);
         let myOptions = {
             center: myLatlng,
-            mapId: mapId,
             zoom: 13,
             mapTypeId: google.maps.MapTypeId.ROADMAP,
 
@@ -2881,13 +2869,13 @@ $max_processing_time = $order->restaurant?explode('-', $order->restaurant['deliv
             let dm_default_image = null;
 
             @if ($order->restaurant)
-                let Restaurantmarker = new AdvancedMarkerElement({
+                let Restaurantmarker = new google.maps.Marker({
                     position: new google.maps.LatLng(
                         {{ isset($order->restaurant) ? $order->restaurant->latitude : 0 }},
                         {{ isset($order->restaurant) ? $order->restaurant->longitude : 0 }}),
                     map: map,
                     title: "{{ isset($order->restaurant) ? Str::limit($order->restaurant->name, 15, '...') : '' }}",
-                    content: restaurantIcon
+                    icon: restaurantIcon
                 });
 
 
@@ -2915,11 +2903,11 @@ $max_processing_time = $order->restaurant?explode('-', $order->restaurant['deliv
                         dm_default_image=  deliveryBoy1Icon;
                     }
 
-                    let marker = new AdvancedMarkerElement({
+                    let marker = new google.maps.Marker({
                         position: point,
                         map: map,
                         title: deliveryMan[i].location,
-                        content: dm_default_image
+                        icon: dm_default_image
                     });
                     dmMarkers[deliveryMan[i].id] = marker;
                     google.maps.event.addListener(marker, 'click', (function(marker, i) {
@@ -2948,12 +2936,12 @@ $max_processing_time = $order->restaurant?explode('-', $order->restaurant['deliv
             let map = new google.maps.Map(document.getElementById("map"), myOptions);
 
             @if (isset($address) && isset($address['latitude']) && isset($address['longitude']) )
-            let marker = new AdvancedMarkerElement({
+            let marker = new google.maps.Marker({
                 position: new google.maps.LatLng({{ $address['latitude'] }},
                     {{ $address['longitude'] }}),
                 map: map,
                 title: "{{ $order?->customer ? $order?->customer->f_name .' '. $order?->customer->l_name : $address['contact_person_name'] }}",
-                content: customerIcon
+                icon: customerIcon
             });
 
             google.maps.event.addListener(marker, 'click', (function(marker) {
@@ -2964,7 +2952,7 @@ $max_processing_time = $order->restaurant?explode('-', $order->restaurant['deliv
                     infowindow.open(map, marker);
                 }
             })(marker));
-            locationbounds.extend(marker.position);
+            locationbounds.extend(marker.getPosition());
             @endif
             //-----end block------
             const input = document.getElementById("pac-input");
@@ -2983,7 +2971,7 @@ $max_processing_time = $order->restaurant?explode('-', $order->restaurant['deliv
                 //     marker.setMap(null);
                 // });
 
-                markers.forEach(m => m.map = null);
+                markers.forEach(m => m.setMap(null));
 
                 markers = [];
                 // For each place, get the icon, name and location.
@@ -3016,7 +3004,7 @@ $max_processing_time = $order->restaurant?explode('-', $order->restaurant['deliv
                     };
                     // Create a marker for each place.
                     markers.push(
-                        new AdvancedMarkerElement({
+                        new google.maps.Marker({
                             map,
                             icon,
                             title: place.name,
@@ -3110,12 +3098,12 @@ $max_processing_time = $order->restaurant?explode('-', $order->restaurant['deliv
 
                 let infowindow = new google.maps.InfoWindow();
                 @if (isset($address) && isset($address['latitude']) && isset($address['longitude']) )
-                    let marker = new AdvancedMarkerElement({
+                    let marker = new google.maps.Marker({
                         position: new google.maps.LatLng({{ $address['latitude'] }},
                             {{ $address['longitude'] }}),
                         map: map,
                         title: "{{ $order?->customer ? $order?->customer->f_name .' '. $order?->customer->l_name : $address['contact_person_name'] }}",
-                        content: customerIcon
+                        icon: customerIcon
                     });
 
                     google.maps.event.addListener(marker, 'click', (function(marker) {
@@ -3126,15 +3114,15 @@ $max_processing_time = $order->restaurant?explode('-', $order->restaurant['deliv
                             infowindow.open(map, marker);
                         }
                     })(marker));
-                    locationbounds.extend(marker.position);
+                    locationbounds.extend(marker.getPosition());
                 @endif
                 @if ($order->delivery_man && $order->dm_last_location)
-                    let dmmarker = new AdvancedMarkerElement({
+                    let dmmarker = new google.maps.Marker({
                         position: new google.maps.LatLng({{ $order->dm_last_location['latitude'] }},
                             {{ $order->dm_last_location['longitude'] }}),
                         map: map,
                         title: "{{ $order->delivery_man->f_name }}  {{ $order->delivery_man->l_name }}",
-                        content: deliveryBoy2Icon
+                        icon: deliveryBoy2Icon
                     });
 
                     google.maps.event.addListener(dmmarker, 'click', (function(dmmarker) {
@@ -3145,16 +3133,16 @@ $max_processing_time = $order->restaurant?explode('-', $order->restaurant['deliv
                             infowindow.open(map, dmmarker);
                         }
                     })(dmmarker));
-                    locationbounds.extend(dmmarker.position);
+                    locationbounds.extend(dmmarker.getPosition());
                 @endif
 
                 @if ($order->restaurant)
-                    let Retaurantmarker = new AdvancedMarkerElement({
+                    let Retaurantmarker = new google.maps.Marker({
                         position: new google.maps.LatLng({{ $order->restaurant->latitude }},
                             {{ $order->restaurant->longitude }}),
                         map: map,
                         title: "{{ Str::limit($order->restaurant->name, 15, '...') }}",
-                        content: restaurantIcon
+                        icon: restaurantIcon
                     });
 
                     google.maps.event.addListener(Retaurantmarker, 'click', (function(Retaurantmarker) {
@@ -3165,7 +3153,7 @@ $max_processing_time = $order->restaurant?explode('-', $order->restaurant['deliv
                             infowindow.open(map, Retaurantmarker);
                         }
                     })(Retaurantmarker));
-                    locationbounds.extend(Retaurantmarker.position);
+                    locationbounds.extend(Retaurantmarker.getPosition());
                 @endif
 
                 google.maps.event.addListenerOnce(map, 'idle', function() {
@@ -3182,7 +3170,7 @@ $max_processing_time = $order->restaurant?explode('-', $order->restaurant['deliv
 
             $('.dm_list').on('click', function() {
                 let id = $(this).data('id');
-                map.panTo(dmMarkers[id].position);
+                map.panTo(dmMarkers[id].getPosition());
                 map.setZoom(13);
                 dmMarkers[id].setAnimation(google.maps.Animation.BOUNCE);
                 window.setTimeout(() => {
@@ -3195,7 +3183,7 @@ $max_processing_time = $order->restaurant?explode('-', $order->restaurant['deliv
 
             $('.dm_list_selected').on('click', function() {
                 let id = $(this).data('id');
-                map.panTo(dmMarkers[id].position);
+                map.panTo(dmMarkers[id].getPosition());
                 map.setZoom(13);
                 dmMarkers[id].setAnimation(google.maps.Animation.BOUNCE);
                 window.setTimeout(() => {

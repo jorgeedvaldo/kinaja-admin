@@ -620,6 +620,7 @@
     </script>
 
     @php($default_location = \App\CentralLogics\Helpers::get_business_settings('default_location'))
+    @php($default_location = ($default_location && ((float) ($default_location['lat'] ?? 0) !== 0.0 || (float) ($default_location['lng'] ?? 0) !== 0.0)) ? $default_location : null)
 
     <script>
         window.mapConfig = {

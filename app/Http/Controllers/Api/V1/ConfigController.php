@@ -221,7 +221,10 @@ class ConfigController extends Controller
             'default_payment_gateways' =>  (bool)($published_status ? false : true)
         );
 
-        $default_location = isset($settings['default_location']) ? json_decode($settings['default_location'], true) : 0;
+        $default_location = isset($settings['default_location']) ? json_decode($settings['default_location'], true) : null;
+        if ($default_location && (float) ($default_location['lat'] ?? 0) === 0.0 && (float) ($default_location['lng'] ?? 0) === 0.0) {
+            $default_location = null;
+        }
 
         $admin_free_delivery = [
             'status' => (bool) data_get($settings, 'admin_free_delivery_status', 0),
@@ -297,7 +300,7 @@ class ConfigController extends Controller
             'phone' => $settings['phone'],
             'email' => $settings['email_address'],
             'country' => $settings['country'],
-            'default_location' => ['lat' => $default_location ? $default_location['lat'] : '23.757989', 'lng' => $default_location ? $default_location['lng'] : '90.360587'],
+            'default_location' => ['lat' => $default_location ? $default_location['lat'] : '-8.8383', 'lng' => $default_location ? $default_location['lng'] : '13.2344'],
             'currency_symbol' => $currency_symbol,
             'currency_symbol_direction' => $settings['currency_symbol_position'],
             'app_minimum_version_android' => (float)$settings['app_minimum_version_android'],

@@ -381,7 +381,8 @@
                                             </div>
                                         </div>
                                         @php($default_location = \App\Models\BusinessSetting::where('key', 'default_location')->first())
-                                        @php($default_location = $default_location->value ? json_decode($default_location->value, true) : 0)
+                                        @php($default_location = $default_location->value ? json_decode($default_location->value, true) : null)
+                                        @php($default_location = ($default_location && ((float) ($default_location['lat'] ?? 0) !== 0.0 || (float) ($default_location['lng'] ?? 0) !== 0.0)) ? $default_location : null)
                                         <div class="col-sm-6">
                                             <div class="form-group mb-0">
                                                 <label class="input-label text-capitalize d-flex alig-items-center"
@@ -392,7 +393,7 @@
                                                 </label>
                                                 <input type="text" id="latitude" name="latitude" class="form-control d-inline"
                                                     placeholder="{{ translate('messages.Ex :') }} -94.22213"
-                                                    value="{{ $default_location ? $default_location['lat'] : 0 }}" required readonly>
+                                                    value="{{ $default_location ? $default_location['lat'] : '-8.8383' }}" required readonly>
                                             </div>
                                         </div>
                                         <div class="col-sm-6">
@@ -404,7 +405,7 @@
                                                     </span>
                                                 </label>
                                                 <input type="text" name="longitude" class="form-control" placeholder="{{ translate('messages.Ex :') }} 103.344322"
-                                                    id="longitude" value="{{ $default_location ? $default_location['lng'] : 0 }}"
+                                                    id="longitude" value="{{ $default_location ? $default_location['lng'] : '13.2344' }}"
                                                     required readonly>
                                             </div>
                                         </div>
@@ -1458,7 +1459,7 @@
 
 @push('script_2')
     <script
-        src="https://maps.googleapis.com/maps/api/js?key={{ \App\Models\BusinessSetting::where('key', 'map_api_key')->first()->value }}&libraries=places,marker&v=3.61">
+        src="https://maps.googleapis.com/maps/api/js?key={{ \App\Models\BusinessSetting::where('key', 'map_api_key')->first()?->value }}&libraries=places,marker&v=3.61">
     </script>
     <script>
         "use strict";
@@ -1515,24 +1516,20 @@
 
         function initAutocomplete() {
 
-            const mapId = "{{ \App\Models\BusinessSetting::where('key', 'map_api_key')->first()->value }}";
             var myLatLng = {
-                lat: {{ $default_location ? $default_location['lat'] : '-33.8688' }},
-                lng: {{ $default_location ? $default_location['lng'] : '151.2195' }}
+                lat: {{ $default_location ? $default_location['lat'] : '-8.8383' }},
+                lng: {{ $default_location ? $default_location['lng'] : '13.2344' }}
             };
             const map = new google.maps.Map(document.getElementById("location_map_canvas"), {
                 center: {
-                    lat: {{ $default_location ? $default_location['lat'] : '-33.8688' }},
-                    lng: {{ $default_location ? $default_location['lng'] : '151.2195' }}
+                    lat: {{ $default_location ? $default_location['lat'] : '-8.8383' }},
+                    lng: {{ $default_location ? $default_location['lng'] : '13.2344' }}
                 },
-                mapId: mapId,
                 zoom: 13,
                 mapTypeId: "roadmap",
             });
 
-            const { AdvancedMarkerElement } = google.maps.marker;
-
-            var marker = new AdvancedMarkerElement({
+            var marker = new google.maps.Marker({
                 position: myLatLng,
                 map: map,
             });
@@ -1543,8 +1540,7 @@
                 var coordinates = JSON.stringify(mapsMouseEvent.latLng.toJSON(), null, 2);
                 var coordinates = JSON.parse(coordinates);
                 var latlng = new google.maps.LatLng(coordinates['lat'], coordinates['lng']);
-                marker.position = latlng;
-                // marker.setPosition(latlng);
+                marker.setPosition(latlng);
                 map.panTo(latlng);
 
                 document.getElementById('latitude').value = coordinates['lat'];
@@ -1574,10 +1570,7 @@
                 if (places.length === 0) {
                     return;
                 }
-                markers.forEach(m => m.map = null);
-                // markers.forEach((marker) => {
-                //     marker.setMap(null);
-                // });
+                markers.forEach(m => m.setMap(null));
                 markers = [];
                 const bounds = new google.maps.LatLngBounds();
                 places.forEach((place) => {
@@ -1585,14 +1578,14 @@
                         console.log("Returned place contains no geometry");
                         return;
                     }
-                    var mrkr = new AdvancedMarkerElement({
+                    var mrkr = new google.maps.Marker({
                         map,
                         title: place.name,
                         position: place.geometry.location,
                     });
                     google.maps.event.addListener(mrkr, "click", function(event) {
-                        document.getElementById('latitude').value = this.position.lat();
-                        document.getElementById('longitude').value = this.position.lng();
+                        document.getElementById('latitude').value = this.getPosition().lat();
+                        document.getElementById('longitude').value = this.getPosition().lng();
                     });
 
                     markers.push(mrkr);

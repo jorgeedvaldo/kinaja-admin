@@ -511,7 +511,8 @@
 
 
     @php($default_location = \App\Models\BusinessSetting::where('key', 'default_location')->first())
-    @php($default_location = $default_location->value ? json_decode($default_location->value, true) : 0)
+    @php($default_location = $default_location->value ? json_decode($default_location->value, true) : null)
+    @php($default_location = ($default_location && ((float) ($default_location['lat'] ?? 0) !== 0.0 || (float) ($default_location['lng'] ?? 0) !== 0.0)) ? $default_location : null)
 
     <script>
         window.mapConfig = {

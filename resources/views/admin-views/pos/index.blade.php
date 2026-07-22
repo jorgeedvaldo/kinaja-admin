@@ -416,13 +416,9 @@
         });
 
 
-        const mapId = "{{ \App\Models\BusinessSetting::where('key', 'map_api_key')->first()->value }}";
-        const { AdvancedMarkerElement } = google.maps.marker;
-
-
         function initMap(lat = null, lng = null) {
-            const defaultLat = {{ $restaurant_data['latitude'] ?? 23.757989 }};
-            const defaultLng = {{ $restaurant_data['longitude'] ?? 90.360587 }};
+            const defaultLat = {{ $restaurant_data['latitude'] ?? -8.8383 }};
+            const defaultLng = {{ $restaurant_data['longitude'] ?? 13.2344 }};
 
                 const map = new google.maps.Map(document.getElementById("map"), {
                     zoom: 13,
@@ -430,7 +426,6 @@
                         lat: lat != null ? parseFloat(lat) : defaultLat,
                         lng: lng != null ? parseFloat(lng) : defaultLng
                     },
-                    mapId: mapId,
                 });
 
             const geocoder = new google.maps.Geocoder();
@@ -438,7 +433,7 @@
             const searchBox = new google.maps.places.SearchBox(input);
             map.controls[google.maps.ControlPosition.TOP_CENTER].push(input);
 
-            let marker = new AdvancedMarkerElement({
+            let marker = new google.maps.Marker({
                 map,
                 draggable: true
             });
@@ -465,7 +460,7 @@
             });
 
             marker.addListener("dragend", () => {
-                const pos = marker.position;
+                const pos = marker.getPosition();
                 setLocation(pos.lat(), pos.lng());
             });
 
@@ -474,7 +469,7 @@
                 document.getElementById("longitude").value = lng;
 
                 const latlng = { lat: lat, lng: lng };
-                marker.position = latlng;
+                marker.setPosition(latlng);
 
                 geocoder.geocode({ location: latlng }, (results, status) => {
                     if (status === "OK" && results[0]) {

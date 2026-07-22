@@ -51,6 +51,7 @@
                                 </div>
                             </div>
                             @php( $default_location = \App\CentralLogics\Helpers::get_business_settings('default_location'))
+                            @php( $default_location = ($default_location && ((float) ($default_location['lat'] ?? 0) !== 0.0 || (float) ($default_location['lng'] ?? 0) !== 0.0)) ? $default_location : ['lat' => '-8.8383', 'lng' => '13.2344'])
 
                             <div class="col-lg-4 col-md-10">
                                 <div class="contact-item">
