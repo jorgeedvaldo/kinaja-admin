@@ -154,7 +154,7 @@
 @endsection
 
 @push('script_2')
-<script src="https://maps.googleapis.com/maps/api/js?v=3.61&key={{ \App\Models\BusinessSetting::where('key', 'map_api_key')->first()?->value }}&libraries=drawing,places,marker"></script>
+<script src="https://maps.googleapis.com/maps/api/js?v=3.61&key={{ \App\Models\BusinessSetting::where('key', 'map_api_key')->first()?->value }}&libraries=places,marker"></script>
 <script>
     "use strict";
     auto_grow();
@@ -166,11 +166,92 @@
 
     let map; // Global declaration of the map
     let lat_longs = new Array();
-    let drawingManager;
+    let drawMode = true;
     let lastpolygon = null;
     let bounds = new google.maps.LatLngBounds();
     let polygons = [];
 
+    // ─── Custom polygon drawing (replaces the DrawingManager the
+    // Google Maps JS API removed in v3.65 — see
+    // https://developers.google.com/maps/deprecations) ──────────
+    function syncCoordinates() {
+        if (!lastpolygon) {
+            $('#coordinates').val('');
+            return;
+        }
+        $('#coordinates').val(lastpolygon.getPath().getArray());
+        auto_grow();
+    }
+
+    function attachPolygonPathListeners(polygon) {
+        const path = polygon.getPath();
+        google.maps.event.addListener(path, 'insert_at', syncCoordinates);
+        google.maps.event.addListener(path, 'set_at', syncCoordinates);
+        google.maps.event.addListener(path, 'remove_at', syncCoordinates);
+    }
+
+    function addPointToPolygon(latLng) {
+        if (!lastpolygon) {
+            lastpolygon = new google.maps.Polygon({
+                paths: [latLng],
+                strokeColor: "#050df2",
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: "#050df2",
+                fillOpacity: 0.15,
+                editable: true,
+                map: map,
+            });
+            attachPolygonPathListeners(lastpolygon);
+            syncCoordinates();
+            return;
+        }
+        lastpolygon.getPath().push(latLng);
+    }
+
+    function createDrawToolControl() {
+        const wrap = document.createElement('div');
+        wrap.style.display = 'flex';
+        wrap.style.gap = '6px';
+        wrap.style.marginTop = '8px';
+        wrap.style.marginBottom = '22px';
+
+        function makeButton(label, title) {
+            const btn = document.createElement('div');
+            btn.title = title;
+            btn.textContent = label;
+            btn.style.width = '36px';
+            btn.style.height = '36px';
+            btn.style.display = 'flex';
+            btn.style.alignItems = 'center';
+            btn.style.justifyContent = 'center';
+            btn.style.backgroundColor = '#fff';
+            btn.style.border = '2px solid #fff';
+            btn.style.borderRadius = '3px';
+            btn.style.boxShadow = '0 2px 6px rgba(0,0,0,.3)';
+            btn.style.cursor = 'pointer';
+            btn.style.fontSize = '16px';
+            return btn;
+        }
+
+        const handBtn = makeButton('✋', 'Hand tool');
+        const shapeBtn = makeButton('▱', 'Shape tool');
+
+        function setMode(isDraw) {
+            drawMode = isDraw;
+            handBtn.style.backgroundColor = isDraw ? '#fff' : '#e8ecff';
+            shapeBtn.style.backgroundColor = isDraw ? '#e8ecff' : '#fff';
+            map.setOptions({ draggableCursor: isDraw ? 'crosshair' : null });
+        }
+
+        handBtn.addEventListener('click', () => setMode(false));
+        shapeBtn.addEventListener('click', () => setMode(true));
+        setMode(true);
+
+        wrap.appendChild(handBtn);
+        wrap.appendChild(shapeBtn);
+        return wrap;
+    }
 
     function resetMap(controlDiv) {
         // Set CSS for the control border.
@@ -197,7 +278,10 @@
         controlUI.appendChild(controlText);
         // Setup the click event listeners: simply set the map to Chicago.
         controlUI.addEventListener("click", () => {
-            lastpolygon.setMap(null);
+            if (lastpolygon) {
+                lastpolygon.setMap(null);
+            }
+            lastpolygon = null;
             $('#coordinates').val('');
 
         });
@@ -238,36 +322,15 @@
         });
 
 
-        drawingManager = new google.maps.drawing.DrawingManager({
-            drawingMode: google.maps.drawing.OverlayType.POLYGON,
-            drawingControl: true,
-            drawingControlOptions: {
-            position: google.maps.ControlPosition.TOP_CENTER,
-            drawingModes: [google.maps.drawing.OverlayType.POLYGON]
-            },
-            polygonOptions: {
-            editable: true
-            }
-        });
-        drawingManager.setMap(map);
-
-        google.maps.event.addListener(drawingManager, "overlaycomplete", function(event) {
-            let newShape = event.overlay;
-            newShape.type = event.type;
+        map.addListener("click", function(event) {
+            if (!drawMode) return;
+            addPointToPolygon(event.latLng);
         });
 
-        google.maps.event.addListener(drawingManager, "overlaycomplete", function(event) {
-            if(lastpolygon)
-                {
-                    lastpolygon.setMap(null);
-                }
-                $('#coordinates').val(event.overlay.getPath().getArray());
-                lastpolygon = event.overlay;
-                auto_grow();
-        });
         const resetDiv = document.createElement("div");
         resetMap(resetDiv, lastpolygon);
         map.controls[google.maps.ControlPosition.TOP_CENTER].push(resetDiv);
+        map.controls[google.maps.ControlPosition.TOP_CENTER].push(createDrawToolControl());
 
         // Create the search box and link it to the UI element.
         const input = document.getElementById("pac-input");
@@ -353,7 +416,10 @@
 
         $('#zone_form input[type="text"]').val('');
         $('#coordinates').val(null);
-        lastpolygon.setMap(null);
+        if (lastpolygon) {
+            lastpolygon.setMap(null);
+        }
+        lastpolygon = null;
         initialize();
 
     });
