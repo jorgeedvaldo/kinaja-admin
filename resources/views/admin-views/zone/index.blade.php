@@ -348,11 +348,6 @@
         });
 
 
-        const mapId = "{{ \App\Models\BusinessSetting::where('key', 'map_api_key')->first()?->value }}";
-        const {
-            AdvancedMarkerElement
-        } = google.maps.marker;
-
         let map; // Global declaration of the map
         let drawingManager;
         let lastpolygon = null;
@@ -392,17 +387,17 @@
 
         function initialize() {
             @php($default_location = \App\Models\BusinessSetting::where('key', 'default_location')->first())
-            @php($default_location = $default_location->value ? json_decode($default_location->value, true) : 0)
+            @php($default_location = $default_location->value ? json_decode($default_location->value, true) : null)
+            @php($default_location = ($default_location && ((float) ($default_location['lat'] ?? 0) !== 0.0 || (float) ($default_location['lng'] ?? 0) !== 0.0)) ? $default_location : null)
             let myLatlng = {
-                lat: {{ $default_location ? $default_location['lat'] : '23.757989' }},
-                lng: {{ $default_location ? $default_location['lng'] : '90.360587' }}
+                lat: {{ $default_location ? $default_location['lat'] : '-8.8383' }},
+                lng: {{ $default_location ? $default_location['lng'] : '13.2344' }}
             };
 
 
             let myOptions = {
                 zoom: 13,
                 center: myLatlng,
-                mapId: mapId,
                 mapTypeId: google.maps.MapTypeId.ROADMAP
             }
             map = new google.maps.Map(document.getElementById("map-canvas"), myOptions);
@@ -470,7 +465,7 @@
                 // marker.setMap(null);
                 // });
 
-                markers.forEach(m => m.map = null);
+                markers.forEach(m => m.setMap(null));
                 markers = [];
                 // For each place, get the icon, name and location.
                 const bounds = new google.maps.LatLngBounds();
@@ -482,7 +477,7 @@
 
                     // Create a marker for each place.
                     markers.push(
-                        new AdvancedMarkerElement({
+                        new google.maps.Marker({
                             map,
                             title: place.name,
                             position: place.geometry.location,

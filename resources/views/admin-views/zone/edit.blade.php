@@ -164,9 +164,6 @@
         element.style.height = (element.scrollHeight)+"px";
     }
 
-    const mapId = "{{ \App\Models\BusinessSetting::where('key', 'map_api_key')->first()?->value }}";
-    const { AdvancedMarkerElement } = google.maps.marker;
-
     let map; // Global declaration of the map
     let lat_longs = new Array();
     let drawingManager;
@@ -212,7 +209,6 @@
         let myOptions = {
             zoom: 13,
             center: myLatlng,
-            mapId: mapId,
             mapTypeId: google.maps.MapTypeId.ROADMAP
         };
         map = new google.maps.Map(document.getElementById("map-canvas"), myOptions);
@@ -305,7 +301,7 @@
 
                 // Create a marker for each place.
                 markers.push(
-                    new AdvancedMarkerElement({
+                    new google.maps.Marker({
                     map,
                     title: place.name,
                     position: place.geometry.location,

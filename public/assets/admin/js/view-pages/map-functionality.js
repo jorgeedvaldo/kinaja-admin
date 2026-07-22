@@ -33,14 +33,13 @@ function initMap() {
     const hasOldCoords = !isNaN(oldLat) && !isNaN(oldLng);
 
     let myLatlng = {
-        lat: Number(hasOldCoords ? oldLat : (defaultLocation ? defaultLocation.lat : 23.757989)),
-        lng: Number(hasOldCoords ? oldLng : (defaultLocation ? defaultLocation.lng : 90.360587))
+        lat: Number(hasOldCoords ? oldLat : (defaultLocation ? defaultLocation.lat : -8.8383)),
+        lng: Number(hasOldCoords ? oldLng : (defaultLocation ? defaultLocation.lng : 13.2344))
     };
 
     map = new google.maps.Map(document.getElementById("map"), {
         zoom: 13,
         center: myLatlng,
-        mapId: mapApiKey,
     });
     geocoder = new google.maps.Geocoder();
 
@@ -54,10 +53,9 @@ function initMap() {
         if (myMarker) {
             myMarker.setMap(null);
         }
-        searchMarkers.forEach(m => m.map = null);
+        searchMarkers.forEach(m => m.setMap(null));
         searchMarkers = [];
-        const { AdvancedMarkerElement } = google.maps.marker;
-        myMarker = new AdvancedMarkerElement({
+        myMarker = new google.maps.Marker({
             position: mapsMouseEvent.latLng,
             map: map,
             title: translations.selectedLocation
@@ -102,8 +100,7 @@ function initMap() {
         infoWindow.setContent(translations.selectZone);
         // infoWindow.open(map);
         map.setCenter(myLatlng);
-        const { AdvancedMarkerElement } = google.maps.marker;
-        myMarker = new AdvancedMarkerElement({
+        myMarker = new google.maps.Marker({
             position: myLatlng,
             map: map,
             title: translations.selectedLocation
@@ -127,7 +124,7 @@ function initMap() {
             myMarker = null;
         }
 
-        searchMarkers.forEach(m => m.map = null);
+        searchMarkers.forEach(m => m.setMap(null));
         searchMarkers = [];
         const first = places[0];
         if (first && first.geometry && first.geometry.location) {
@@ -146,9 +143,8 @@ function initMap() {
                 return;
             }
 
-            const { AdvancedMarkerElement } = google.maps.marker;
             searchMarkers.push(
-                new AdvancedMarkerElement({
+                new google.maps.Marker({
                     map,
                     title: place.name,
                     position: place.geometry.location,
@@ -285,10 +281,9 @@ $('#choice_zones').on('change', function () {
                 if (myMarker) {
                     myMarker.setMap(null);
                 }
-                searchMarkers.forEach(m => m.map = null);
+                searchMarkers.forEach(m => m.setMap(null));
                 searchMarkers = [];
-                const { AdvancedMarkerElement } = google.maps.marker;
-                myMarker = new AdvancedMarkerElement({
+                myMarker = new google.maps.Marker({
                     position: mapsMouseEvent.latLng,
                     map: map,
                     title: window.mapConfig.translations.selectedLocation

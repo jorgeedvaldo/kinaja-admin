@@ -601,11 +601,8 @@ use App\CentralLogics\Helpers;
 
 
         function initMap(lat = null, lng = null) {
-            const defaultLat = {{  23.757989 }};
-            const defaultLng = {{  90.360587 }};
-            const mapId = "{{ Helpers::get_business_settings('map_api_key')  }}";
-
-            const { AdvancedMarkerElement } = google.maps.marker;
+            const defaultLat = {{ -8.8383 }};
+            const defaultLng = {{ 13.2344 }};
 
                 const map = new google.maps.Map(document.getElementById("location_map_canvas"), {
                     zoom: 13,
@@ -613,7 +610,6 @@ use App\CentralLogics\Helpers;
                         lat: lat != null ? parseFloat(lat) : defaultLat,
                         lng: lng != null ? parseFloat(lng) : defaultLng
                     },
-                    mapId: mapId,
                 });
 
             const geocoder = new google.maps.Geocoder();
@@ -627,7 +623,7 @@ use App\CentralLogics\Helpers;
                 }
             });
 
-            let marker = new AdvancedMarkerElement({
+            let marker = new google.maps.Marker({
                 map,
                 draggable: true
             });
@@ -663,7 +659,7 @@ use App\CentralLogics\Helpers;
                 document.getElementById("longitude").value = lng;
 
                 const latlng = { lat: lat, lng: lng };
-                marker.position = latlng;
+                marker.setPosition(latlng);
 
                 geocoder.geocode({ location: latlng }, (results, status) => {
                     if (status === "OK" && results[0]) {

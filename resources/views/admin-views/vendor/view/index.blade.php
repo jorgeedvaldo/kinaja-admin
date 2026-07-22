@@ -443,7 +443,7 @@
 
 @push('script_2')
     <script
-        src="https://maps.googleapis.com/maps/api/js?key={{\App\Models\BusinessSetting::where('key', 'map_api_key')->first()->value}}&libraries=marker&callback=initMap&v=3.61">
+        src="https://maps.googleapis.com/maps/api/js?key={{\App\Models\BusinessSetting::where('key', 'map_api_key')->first()?->value}}&libraries=marker&callback=initMap&v=3.61">
     </script>
     <script src="{{ dynamicAsset('assets/admin') }}/js/file-preview/document-upload.js"></script>
     <script>
@@ -453,9 +453,6 @@
             $('#dataTable').DataTable();
         });
 
-        const mapId = "{{ \App\Models\BusinessSetting::where('key', 'map_api_key')->first()->value }}";
-        const { AdvancedMarkerElement } = google.maps.marker;
-
         const myLatLng = { lat: {{$restaurant->latitude}}, lng: {{$restaurant->longitude}} };
         let map;
         initMap();
@@ -463,9 +460,8 @@
             map = new google.maps.Map(document.getElementById("map"), {
                 zoom: 15,
                 center: myLatLng,
-                mapId: mapId,
             });
-            new AdvancedMarkerElement({
+            new google.maps.Marker({
                 map,
                 position: myLatLng,
                 title: "{{$restaurant->name}}",
