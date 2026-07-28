@@ -78,6 +78,8 @@ class SMS_module
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                 curl_setopt($ch, CURLOPT_POST, 1);
                 curl_setopt($ch, CURLOPT_POSTFIELDS, "from=".$config['from']."&text=".$message."&to=".$receiver."&api_key=".$config['api_key']."&api_secret=".$config['api_secret']);
+                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 20);
 
                 $headers = array();
                 $headers[] = 'Content-Type: application/x-www-form-urlencoded';
@@ -85,10 +87,11 @@ class SMS_module
 
                 $result = curl_exec($ch);
                 if (curl_errno($ch)) {
-                    echo 'Error:' . curl_error($ch);
+                    $response = 'error';
+                } else {
+                    $response = 'success';
                 }
                 curl_close($ch);
-                $response = 'success';
             } catch (\Exception $exception) {
                 $response = 'error';
             }
@@ -189,6 +192,8 @@ class SMS_module
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_CUSTOMREQUEST => 'POST',
                 CURLOPT_POSTFIELDS => $postfields,
+                CURLOPT_CONNECTTIMEOUT => 10,
+                CURLOPT_TIMEOUT => 20,
             ));
 
             $response = curl_exec($curl);
