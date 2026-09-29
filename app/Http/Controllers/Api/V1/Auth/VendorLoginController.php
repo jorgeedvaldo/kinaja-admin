@@ -143,7 +143,7 @@ class VendorLoginController extends Controller
 
         $data = json_decode($request->translations, true);
 
-        if (count($data) < 1) {
+        if (!is_array($data) || count($data) < 2) {
             $validator->getMessageBag()->add('translations', translate('messages.Name and description in english is required'));
         }
 
